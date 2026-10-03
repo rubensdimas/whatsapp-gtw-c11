@@ -2,7 +2,7 @@
 
 ## Contexto e escopo
 
-Leia README.md e os documentos em docs/ antes de implementar. O produto é uma ponte Gupshup ↔ Chatwoot **4.10.1**, com atendimento humano. Não adicionar IA, Agno, RAG, tools de negócio, Implanta.NET ou n8n nesta entrega.
+Leia README.md, os documentos em docs/ e os ADRs em docs/adr/ antes de implementar. O produto é uma ponte Gupshup ↔ Chatwoot **4.10.1**, com atendimento humano. Não adicionar IA, Agno, RAG, tools de negócio, Implanta.NET ou n8n nesta entrega.
 
 ## Regras técnicas
 
@@ -14,6 +14,9 @@ Leia README.md e os documentos em docs/ antes de implementar. O produto é uma p
 - Deduplicar por canal e ID externo. Nunca prometer exactly-once entre APIs independentes.
 - Usar o source_id efetivamente retornado pelo vínculo contato/inbox e o ID público da conversa na API de contas.
 - Considerar somente outgoing público da conta/inbox configuradas como candidato a envio. Ignorar incoming, notas privadas, activity e message_updated para transporte de saída.
+- Única exceção: nota privada de agente iniciada por `/template` ou `/templates` é comando (ADR 0007). Nunca transportar seu texto.
+- Configuração de canal vem da tabela channel, nunca de variáveis por canal (ADR 0001).
+- Ao mudar uma decisão registrada, criar novo ADR em docs/adr/ e atualizar o documento afetado.
 - Não supor que submitted/enqueued significa sent; não inferir entrega pelo status padrão do Chatwoot.
 - Não reenviar automaticamente POST com resultado ambíguo. Implementar reconciliation_required e intervenção operacional.
 - Nunca escrever diretamente no banco do Chatwoot nem modificar seu core para esta integração.
@@ -26,7 +29,9 @@ Criar testes úteis para parsing, deduplicação, corridas, falhas de rede, orde
 
 ## Estrutura sugerida, ainda não criada
 
-app/api, app/providers, app/services, app/repositories, app/models, app/workers, migrations, tests/unit, tests/integration e tests/fixtures. Usar arquivos pequenos por responsabilidade; evitar duplicar regras do domínio em routers e adapters.
+app/api, app/providers, app/services, app/repositories, app/models, app/workers, app/cli, migrations, tests/unit, tests/integration e tests/fixtures. Usar arquivos pequenos por responsabilidade; evitar duplicar regras do domínio em routers e adapters.
+
+Tooling: Python 3.12, uv, ruff, mypy estrito em domínio/serviços, pytest com testcontainers e respx (ADR 0011). Fixtures sintéticas devem ficar marcadas como provisórias até serem substituídas por capturas reais.
 
 ## Limite de atuação
 

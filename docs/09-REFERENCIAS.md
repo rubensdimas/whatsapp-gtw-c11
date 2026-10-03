@@ -45,6 +45,7 @@ Estes arquivos foram lidos diretamente do repositório oficial pela URL raw da t
 | [ConversationsController](https://github.com/chatwoot/chatwoot/blob/v4.10.1/app/controllers/api/v1/accounts/conversations_controller.rb) | Rotas de conta localizam conversa por display_id |
 | [Channel::Api](https://github.com/chatwoot/chatwoot/blob/v4.10.1/app/models/channel/api.rb) | API Inbox possui webhook_url |
 | [WebhookListener](https://github.com/chatwoot/chatwoot/blob/v4.10.1/app/listeners/webhook_listener.rb) | Webhooks de inbox e conta são caminhos distintos; ambos podem emitir o mesmo evento |
+| [Contact](https://github.com/chatwoot/chatwoot/blob/v4.10.1/app/models/contact.rb) | phone_number (E.164) e identifier únicos por conta; base do [ADR 0002](adr/0002-resolucao-de-contato.md) |
 
 ## Grau de confirmação
 
@@ -56,8 +57,14 @@ Estes arquivos foram lidos diretamente do repositório oficial pela URL raw da t
 | Assinatura/autenticação real dos callbacks | Validar na conta/rede de homologação |
 | Reuso/reabertura de conversa, busca e resposta JSON exata | Validar com fixtures e testes 4.10.1 |
 | Schema/limites outbound de mídia | Validar em E3 |
+| Unicidade de phone_number/identifier por conta | Confirmada no código upstream |
+| content_attributes/source_id no webhook message_created | Validar na Etapa 0 |
+| Transição failed → delivered aceita pelo PATCH | Validar na Etapa 0 |
+| Formato V2 do sandbox igual ao do número vinculado | Validar ao vincular o número |
+| Campo de contexto de resposta citada inbound | Validar com fixtures |
+| Limite de caracteres de texto | Confirmar na referência vigente |
 | Migração/coexistência do número de produção | Fora deste pacote |
 
 ## Decisões de projeto
 
-Fila PostgreSQL, janela calculada localmente, contratos internos, endpoints administrativos, métricas, retenção e políticas de retry são decisões propostas para o gateway. Não são recursos ou garantias atribuídos à Gupshup ou ao Chatwoot. A arquitetura aprovada pelo usuário foi preservada; as definições adicionais tornam o trabalho implementável e passível de revisão.
+Fila PostgreSQL, janela calculada localmente, contratos internos, endpoints administrativos, métricas, retenção e políticas de retry são decisões propostas para o gateway. As decisões tomadas após a preparação estão em [docs/adr](adr/README.md). Não são recursos ou garantias atribuídos à Gupshup ou ao Chatwoot. A arquitetura aprovada pelo usuário foi preservada; as definições adicionais tornam o trabalho implementável e passível de revisão.

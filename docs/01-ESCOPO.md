@@ -8,9 +8,9 @@ Um profissional envia uma mensagem ao número WhatsApp de teste, ela aparece na 
 
 | Entrega | Conteúdo | Limite |
 | --- | --- | --- |
-| E1 — integração básica | Texto nos dois sentidos, contato, vínculo inbox, conversa, persistência, deduplicação e bloqueio fora da janela | Piloto controlado; sem anexos e sem iniciar contato por template |
-| E2 — status e operação | Correlação Gupshup/WhatsApp/Chatwoot, recibos, falhas, recuperação, métricas e testes de indisponibilidade | Sem alegação de entrega quando houver apenas aceitação da API |
-| E3 — MVP operacional | Imagem, áudio, vídeo, documento e template textual aprovado com parâmetros | Liberação depende da homologação de todos os fluxos |
+| E1 — integração básica | Texto nos dois sentidos, contato, vínculo inbox, conversa, persistência, deduplicação, conversão de markdown, divisão de texto longo, bloqueio fora da janela, status failed e aviso privado | Piloto controlado; sem anexos e sem iniciar contato por template |
+| E2 — status e operação | Correlação Gupshup/WhatsApp/Chatwoot, recibos sent/delivered/read, recuperação, métricas e testes de indisponibilidade | Sem alegação de entrega quando houver apenas aceitação da API |
+| E3 — MVP operacional | Imagem, áudio, vídeo, documento, template textual aprovado com parâmetros por comando em nota privada e por endpoint administrativo | Liberação depende da homologação de todos os fluxos |
 
 E1 e E2 são marcos intermediários. O MVP operacional inclui E3. Stickers, reações, localização, contatos, botões complexos e catálogo ficam fora deste MVP; uma mensagem não suportada deve produzir registro e aviso privado ao atendente, sem ser descartada silenciosamente.
 
@@ -20,16 +20,18 @@ E1 e E2 são marcos intermediários. O MVP operacional inclui E3. Stickers, rea�
 | --- | --- |
 | RF01 | Receber webhook V2 da aplicação Gupshup configurada e separar message de message-event |
 | RF02 | Normalizar texto, identificador WhatsApp e timestamps, preservando o ID externo original |
-| RF03 | Reutilizar contato existente após correspondência exata; criar se ausente; associar à Inbox API |
+| RF03 | Resolver contato por mapeamento, identifier `wa:<wa_id>`, telefone exato e variante do nono dígito; criar se ausente; em ambiguidade, usar o candidato mais forte e avisar privadamente ([ADR 0002](adr/0002-resolucao-de-contato.md)) |
 | RF04 | Reutilizar conversa não resolvida da mesma conta/inbox/contato; criar nova após resolução |
-| RF05 | Inserir texto/mídia recebidos como incoming público no Chatwoot |
-| RF06 | Receber message_created e encaminhar somente outgoing público válido |
+| RF05 | Inserir texto/mídia recebidos como incoming público no Chatwoot; resposta citada recebe prefixo textual com trecho da original quando conhecida |
+| RF06 | Receber message_created e encaminhar somente outgoing público válido, inclusive em conversa iniciada pelo atendente ([ADR 0004](adr/0004-conversa-iniciada-pelo-atendente.md)) |
 | RF07 | Armazenar IDs de envio e atualizar status/falhas no Chatwoot |
 | RF08 | Controlar janela de atendimento a partir da última mensagem do usuário, revalidando antes do envio |
-| RF09 | Oferecer envio explícito de template aprovado por endpoint administrativo autenticado |
+| RF09 | Enviar template aprovado por comando `/template` em nota privada e por endpoint administrativo autenticado ([ADR 0007](adr/0007-comando-de-template-em-nota-privada.md)) |
 | RF10 | Preservar texto e anexos de uma mensagem como partes rastreáveis e manter sua ordem |
 | RF11 | Informar falhas definitivas ou bloqueios ao atendente por status failed e aviso privado deduplicado |
 | RF12 | Permitir inspeção e reprocessamento técnico com autorização, auditoria e prevenção de reenvio incerto |
+| RF13 | Converter markdown básico para a formatação do WhatsApp e dividir texto acima do limite em partes ordenadas ([ADR 0009](adr/0009-formatacao-e-divisao-de-texto.md)) |
+| RF14 | Liberar a fila de saída do contato após o prazo de retenção de envio ambíguo, com failed e aviso ([ADR 0003](adr/0003-retencao-da-fila-por-contato.md)) |
 
 ## Requisitos não funcionais
 
@@ -39,7 +41,7 @@ A meta de processamento de texto, excluídas indisponibilidades externas, é p95
 
 ## Fora do escopo
 
-Agente de IA, integração com sistemas de negócio, autenticação PF/PJ, cobrança, RAG, campanhas em massa, migração automática de histórico, alterações no Chatwoot, vários provedores implementados e alta disponibilidade entre regiões.
+Agente de IA, integração com sistemas de negócio, autenticação PF/PJ, cobrança, RAG, campanhas em massa, migração automática de histórico, alterações no Chatwoot, vários provedores implementados, alta disponibilidade entre regiões, confirmação de leitura enviada ao WhatsApp, indicador "digitando", resposta citada na saída e interface web de operação.
 
 ## Aceite
 
