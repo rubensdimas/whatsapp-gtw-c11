@@ -1,0 +1,29 @@
+# SO / editores
+.DS_Store
+.idea/
+.vscode/
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+dist/
+build/
+*.egg-info/
+
+# Configuração local e segredos
+.env
+.env.*
+!.env.example
+
+# Docker / dados locais
+docker-compose.override.yml
+data/
+
+# Fixtures brutas não anonimizadas (somente as anonimizadas vão para tests/fixtures)
+fixtures-raw/
